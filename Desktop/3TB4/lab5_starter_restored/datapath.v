@@ -21,7 +21,7 @@ module datapath (input clk, reset_n,
 // It is important that the comment appear before the semicolon
 
 wire [7:0] addr /*synthesis keep*/;
-//regfile	
+//regfile	!!!WATCH  OUT sel0 and sel1 = part of instruction 
 wire [2:0] select0 /*synthesis keep*/;
 wire [2:0] select1 /*synthesis keep*/;
 wire [7:0] selected0 /*synthesis keep*/;
@@ -111,8 +111,8 @@ delay_counter the_delay_counter(
 );
 
 stepper_rom the_stepper_rom(
-	// Inputs
-	.address (position [2:0]),
+	// Inputs ??? is this right?!?!vvv
+	.address (position [2:0]), 
 	.clock (clk),
 	// Outputs
 	.q (stepper_signals)
@@ -131,65 +131,65 @@ pc the_pc(
 
 instruction_rom the_instruction_rom(
 	// Inputs
-	.address (),
-	.clock (),
+	.address (intruction[4:0]),
+	.clock (clk),
 	// Outputs
-	.q ()
+	.q (immediate)
 );
 
 alu the_alu(
 	// Inputs
-	.add_sub (),
-	.set_low (),
-	.set_high (),
-	.operanda (),
-	.operandb (),
+	.add_sub (alu_add_sub),
+	.set_low (alu_set_low),
+	.set_high (alu_set_high),
+	.operanda (operanda),
+	.operandb (operandb),
 	// Outputs
-	.result ()
+	.result (newpc)
 );
 
 temp_register the_temp_register(
 	// Inputs
-	.clk (),
-	.reset_n (),
-	.load (),
-	.increment (),
-	.decrement (),
-	.data (),
+	.clk (clk),
+	.reset_n (reset_n),
+	.load (load_temp),
+	.increment (increment_temp),
+	.decrement (decrement_temp),
+	.data (selected0),
 	// Outputs
-	.negative (),
-	.positive (),
-	.zero ()
+	.negative (temp_is_negative),
+	.positive (temp_is_positive),
+	.zero (temp_is_zero)
 );
 
 immediate_extractor the_immediate_extractor(
 	// Inputs
-	.instruction (),
-	.select (),
+	.instruction (instruction),
+	.select (select_immediate),
 	// Outputs
-	.immediate ()
+	.immediate (immediate)
 );
 
 write_address_select the_write_address_select(
 	// Inputs
-	.select (),
-	.reg_field0 (),
-	.reg_field1 (),
+	.select (select_write_address),
+	.reg_field0 (instruction),
+	.reg_field1 (select1),
 	// Outputs
-	.write_address()
+	.write_address(write_select)
 );
 
 result_mux the_result_mux (
-	.select_result (),
-	.alu_result (),
-	.result ()
+	.select_result (result_mux_select),
+	.alu_result (newpc),
+	.result (data)
 );
 
 branch_logic the_branch_logic(
 	// Inputs
 	.register0 (register0),
 	// Outputs
-	.branch ()
+	.branch (register0_is_zero)
 );
 
 endmodule
