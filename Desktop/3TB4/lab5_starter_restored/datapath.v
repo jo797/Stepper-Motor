@@ -38,7 +38,12 @@ wire [7:0] intruction /*synthesis keep*/;
 //mux
 wire [7:0] pc /*synthesis keep*/;
 wire [7:0] operanda /*synthesis keep*/;
+wire [7:0] operandb /*synthesis keep*/;
 wire [7:0] immediate /*synthesis keep*/;
+	
+//PC
+wire [7:0] newpc /*synthesis keep*/;
+wire [7:0] pc /*synthesis keep*/;
 	
 decoder the_decoder (
 	// Inputs
@@ -89,39 +94,39 @@ op2_mux the_op2_mux(
 	// Inputs
 	.select (op2_mux_select),
 	.register (selected1),
-	.immediate (),
+	.immediate (immediate),
 	// Outputs
 	.result (operandb)
 );
 
 delay_counter the_delay_counter(
 	// Inputs
-	.clk(),
-	.reset_n (),
-	.start (),
-	.enable (),
+	.clk(clk),
+	.reset_n (reset_n),
+	.start (start_delay_counter),
+	.enable (enable_delay_counter),
 	.delay (delay),
 	// Outputs
-	.done ()
+	.done (delay_done)
 );
 
 stepper_rom the_stepper_rom(
 	// Inputs
-	.address (),
-	.clock (),
+	.address (position [2:0]),
+	.clock (clk),
 	// Outputs
-	.q ()
+	.q (stepper_signals)
 );
 
 pc the_pc(
 	// Inputs
-	.clk (),
-	.reset_n (),
-	.branch (),
-	.increment (),
-	.newpc (),
+	.clk (clk),
+	.reset_n (reset_n),
+	.branch (commit_branch),
+	.increment (increment_pc),
+	.newpc (newpc),
 	// Outputs
-	.pc ()
+	.pc (pc)
 );
 
 instruction_rom the_instruction_rom(
