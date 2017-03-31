@@ -19,35 +19,15 @@ module datapath (input clk, reset_n,
 // The comment /*synthesis keep*/ after the declaration of a wire
 // prevents Quartus from optimizing it, so that it can be observed in simulation
 // It is important that the comment appear before the semicolon
-
-wire [7:0] addr /*synthesis keep*/;
-//regfile	!!!WATCH  OUT sel0 and sel1 = part of instruction 
-wire [2:0] select0 /*synthesis keep*/;
-wire [2:0] select1 /*synthesis keep*/;
-wire [7:0] selected0 /*synthesis keep*/;
-wire [7:0] selected1 /*synthesis keep*/;
-wire [2:0] write_select /*synthesis keep*/;
-wire [7:0] data /*synthesis keep*/;
 wire [7:0] position /*synthesis keep*/;
 wire [7:0] delay /*synthesis keep*/;
 wire [7:0] register0 /*synthesis keep*/;
-	
-//decoder
-wire [7:0] intruction /*synthesis keep*/;
-	
-//mux
-wire [7:0] pc /*synthesis keep*/;
-wire [7:0] operanda /*synthesis keep*/;
-wire [7:0] operandb /*synthesis keep*/;
-wire [7:0] immediate /*synthesis keep*/;
-	
-//PC
-wire [7:0] newpc /*synthesis keep*/;
-wire [7:0] pc /*synthesis keep*/;
-	
+
+wire [7:0] Q, prognew, progcount, operanda, selected0, immediate, operandb, result /*synthesis keep*/;
+wire [1:0] write;
 decoder the_decoder (
 	// Inputs
-	.instruction (intruction[7:2]),
+	.instruction (Q[7:2]),
 	// Outputs
 	.br (br),
 	.brz (brz),
@@ -59,7 +39,7 @@ decoder the_decoder (
 	.mov (mov),
 	.mova (mova),
 	.movr (movr),
-	.movrhs (morhs),
+	.movrhs (movrhs),
 	.pause (pause)
 );
 regfile the_regfile(
@@ -67,12 +47,12 @@ regfile the_regfile(
 	.clk (clk),
 	.reset_n (reset_n),
 	.write (write_reg_file),
-	.data (data), 
-	.select0 (select0),
-	.select1 (select0),
-	.wr_select (write_select),
+	.data (result), 
+	.select0 (Q[1:0]),
+	.select1 (Q[3:2]),
+	.wr_select (write),
 	// Outputs
-	.selected0 (selecetd0),
+	.selected0 (selected0),
 	.selected1 (selected1),
 	.delay (delay),
 	.position (position),
@@ -82,7 +62,7 @@ regfile the_regfile(
 op1_mux the_op1_mux(
 	// Inputs
 	.select (op1_mux_select),
-	.pc (pc),
+	.pc (progcounter),
 	.register (selected0),
 	.register0 (register0),
 	.position (position),
@@ -111,8 +91,8 @@ delay_counter the_delay_counter(
 );
 
 stepper_rom the_stepper_rom(
-	// Inputs ??? is this right?!?!vvv
-	.address (position [2:0]), 
+	// Inputs
+	.address (position[2:0]),
 	.clock (clk),
 	// Outputs
 	.q (stepper_signals)
@@ -124,17 +104,17 @@ pc the_pc(
 	.reset_n (reset_n),
 	.branch (commit_branch),
 	.increment (increment_pc),
-	.newpc (newpc),
+	.newpc (prognew),
 	// Outputs
-	.pc (pc)
+	.pc (progcount)
 );
 
 instruction_rom the_instruction_rom(
 	// Inputs
-	.address (intruction[4:0]),
+	.address (progcount),
 	.clock (clk),
 	// Outputs
-	.q (immediate)
+	.q (Q)
 );
 
 alu the_alu(
@@ -145,7 +125,7 @@ alu the_alu(
 	.operanda (operanda),
 	.operandb (operandb),
 	// Outputs
-	.result (newpc)
+	.result (prognew)
 );
 
 temp_register the_temp_register(
@@ -164,7 +144,7 @@ temp_register the_temp_register(
 
 immediate_extractor the_immediate_extractor(
 	// Inputs
-	.instruction (instruction),
+	.instruction (Q[5:0]),
 	.select (select_immediate),
 	// Outputs
 	.immediate (immediate)
@@ -173,23 +153,23 @@ immediate_extractor the_immediate_extractor(
 write_address_select the_write_address_select(
 	// Inputs
 	.select (select_write_address),
-	.reg_field0 (instruction),
-	.reg_field1 (select1),
+	.reg_field0 (Q[1:0]),
+	.reg_field1 (Q[3:2]),
 	// Outputs
-	.write_address(write_select)
+	.write_address(write)
 );
 
 result_mux the_result_mux (
 	.select_result (result_mux_select),
-	.alu_result (newpc),
-	.result (data)
+	.alu_result (prognew),
+	.result (result)
 );
 
 branch_logic the_branch_logic(
 	// Inputs
 	.register0 (register0),
 	// Outputs
-	.branch (register0_is_zero)
+	.branch (register0_is_0)
 );
 
 endmodule
