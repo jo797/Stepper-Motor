@@ -2,30 +2,34 @@ module temp_register (input clk, reset_n, load, increment, decrement, input [7:0
 					output negative, positive, zero);
 
 	
-reg [31:0] counter=0;
-reg [7:0] temp ;
-//assume active low
+reg [7:0] counter=0;
 always @(*)
 begin
-	if (load==0)
+	if (load)
 	begin
 		//number of steps/HS that need to happen
-		temp<= data;
+		counter<= data;
 	end
-	if (increment==0)
+	if (increment)
 	begin
 		counter<= counter++;
 	end
-	if (decrement==0)
+	if (decrement)
 	begin
 		counter<= counter--;
 	end
-	if(data <0)
+	if(counter <0)
 		negative = 1;
-	else if (data == 0)
+		zero=0;
+		positive=0;
+	else if (counter == 0)
 		zero=1;
+		negative =0;
+		positive = 0;
 	else
 		positive=1;
+		negative = 0;
+		zero= 0;
 end
 
 endmodule
