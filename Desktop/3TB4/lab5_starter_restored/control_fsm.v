@@ -27,6 +27,88 @@ parameter RESET=5'b00000, FETCH=5'b00001, DECODE=5'b00010,
 reg [5:0] state;
 reg [5:0] next_state_logic; // NOT REALLY A REGISTER!!!
 
+always @(posedge clk) begin
+	if (reset_n == 1'b0)
+		state <= 5'b00000;
+	else
+		state <= next_state_logic;
+end
+
+// Output logic
+
+assign data_lo_ld = (state == 5'b00001);
+assign data_hi_ld = (state == 5'b10000);
+assign data_out_ld = (state == 3'b110);
+assign rdy_out = (state == 3'b110);
+
+// Next state logic
+
+always @(*) begin
+
+	case (state)
+		//RESET
+		5'b00000:
+		
+		//FETCH
+		5'b00001:
+		
+		//DECODE AND FETCH
+		5'b00010:
+		
+		//ADDI
+		5'b00011:
+		
+		//SUBI
+		5'b00100:
+		
+		//MOV
+		5'b00101:
+		
+		//SR0
+		5'b00111:
+		
+		//SRH0
+		5'b01000:
+		
+		//CLR
+		5'b01001:
+		
+		//BR
+		5'b01010:
+		
+		//BRZ
+		5'b01011:
+		
+		//MOVR STAGE 2
+		5'b01100:
+		
+		//MOVRHS STAGE 2
+		5'b01101:
+		
+		//MOVR DELAY
+		5'b01111:
+		
+		//MOVRHS DELAY
+		5'b10000:
+		
+		//MOVRHS
+		5'b10001:
+		
+		//MOVR
+		5'b10010:
+		
+		//PAUSE DELAY
+		5'b10011:
+		
+		//PAUSE
+		5'b10100:
+		
+	
+	// default not needed, because all the cases are specified
+	endcase	
+end
+
+
 // Next state logic
 
 
