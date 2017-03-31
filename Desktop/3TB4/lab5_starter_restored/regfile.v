@@ -14,10 +14,12 @@ reg [7:0] reg3 /* synthesis preserve */; //delay value, in 0.01s
 
 always @(posedge clk)
 begin
-	if (reset_n==0)
-	begin
-		reg2 = 8'b0;
-	end
+
+//FOR ANOTHER FILE? 
+	//if (reset_n==0)
+	//begin
+	//	reg2 = 8'b0;
+	//end
 	/* CW  half stepper
 	elseif ()
 	begin
@@ -43,10 +45,29 @@ begin
 		reg2 = reg2 - 8'b00000002;
 	end
 	*/
+	//for sel1
+	case(select0)
+	2'b00:selected0<=reg0;
+	2'b01:selected0<=reg1;
+	2'b10:selected0<=reg2;
+	2'b11:selected0<=reg3;
+	case(select1)
+	2'b00:selected1<=reg0;
+	2'b01:selected1<=reg1;
+	2'b10:selected1<=reg2;
+	2'b11:selected1<=reg3;
+	if (write)
+	begin
+		case(wr_select)
+		2'b00:reg0<=data;
+		2'b01:reg1<=data;
+		2'b10:reg2<=data;
+		2'b11:reg3<=data;
+	end
 end
 
-assign reg0 =  register0;
-assign reg2 =  position;
-assign reg3 =  delay;
+assign register0=reg0;
+assign position=reg2;
+assign delay=reg3;
 
 endmodule
