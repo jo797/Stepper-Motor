@@ -19,42 +19,56 @@ module datapath (input clk, reset_n,
 // The comment /*synthesis keep*/ after the declaration of a wire
 // prevents Quartus from optimizing it, so that it can be observed in simulation
 // It is important that the comment appear before the semicolon
+
+wire [7:0] addr /*synthesis keep*/;
+//regfile	
+wire [2:0] select0 /*synthesis keep*/;
+wire [2:0] select1 /*synthesis keep*/;
+wire [7:0] selected0 /*synthesis keep*/;
+wire [7:0] selected1 /*synthesis keep*/;
+wire [2:0] write_select /*synthesis keep*/;
+wire [7:0] data /*synthesis keep*/;
 wire [7:0] position /*synthesis keep*/;
 wire [7:0] delay /*synthesis keep*/;
 wire [7:0] register0 /*synthesis keep*/;
-wire [7:0] seld0 /*synthesis keep*/;
-wire [7:0] seld1 /*synthesis keep*/;
-wire [7:0] addr /*synthesis keep*/;
-
+	
+//decoder
+wire [7:0] intruction /*synthesis keep*/;
+	
+//mux
+wire [7:0] pc /*synthesis keep*/;
+wire [7:0] operanda /*synthesis keep*/;
+wire [7:0] immediate /*synthesis keep*/;
+	
 decoder the_decoder (
 	// Inputs
-	.instruction (),
+	.instruction (intruction[7:2]),
 	// Outputs
-	.br (),
-	.brz (),
-	.addi (),
-	.subi (),
-	.sr0 (),
-	.srh0 (),
-	.clr (),
-	.mov (),
-	.mova (),
-	.movr (),
-	.movrhs (),
-	.pause ()
+	.br (br),
+	.brz (brz),
+	.addi (addi),
+	.subi (subi),
+	.sr0 (sr0),
+	.srh0 (srh0),
+	.clr (clr),
+	.mov (mov),
+	.mova (mova),
+	.movr (movr),
+	.movrhs (morhs),
+	.pause (pause)
 );
 regfile the_regfile(
 	// Inputs
-	.clk (),
-	.reset_n (),
-	.write (),
-	.data (), 
-	.select0 (),
-	.select1 (),
-	.wr_select (),
+	.clk (clk),
+	.reset_n (reset_n),
+	.write (write_reg_file),
+	.data (data), 
+	.select0 (select0),
+	.select1 (select0),
+	.wr_select (write_select),
 	// Outputs
-	.selected0 (seld0),
-	.selected1 (),
+	.selected0 (selecetd0),
+	.selected1 (selected1),
 	.delay (delay),
 	.position (position),
 	.register0 (register0)
@@ -62,22 +76,22 @@ regfile the_regfile(
 
 op1_mux the_op1_mux(
 	// Inputs
-	.select (),
-	.pc (),
-	.register (),
+	.select (op1_mux_select),
+	.pc (pc),
+	.register (selected0),
 	.register0 (register0),
 	.position (position),
 	// Outputs
-	.result()
+	.result(operanda)
 );
 
 op2_mux the_op2_mux(
 	// Inputs
-	.select (),
-	.register (),
+	.select (op2_mux_select),
+	.register (selected1),
 	.immediate (),
 	// Outputs
-	.result ()
+	.result (operandb)
 );
 
 delay_counter the_delay_counter(
